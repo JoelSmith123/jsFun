@@ -17,11 +17,24 @@ const turingPrompts = {
     //  { name: 'Robbie', studentCount: 18 }
     // ]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const instructorArr = instructors.reduce((acc, instructor) => {
+        let instructorStudentsCount = cohorts.find(cohort => {
+            return cohort.module === instructor.module
+        })
+        acc.push({ name: instructor.name, studentCount: instructorStudentsCount.studentCount })
+        return acc;
+    }, [])
+
+    const result = instructorArr;
     return result;
 
     // Annotation:
     // Write your annotation here as a comment
+
+    // I've been given two arrays of objects
+    // I want to get back an array of objects
+    // I'm going to use map to iterate over the instructors array
+    // I also use find to locate the matching cohort to return its studentCount
   },
 
   studentsPerInstructor() {
@@ -31,14 +44,31 @@ const turingPrompts = {
     // cohort1804: 10.5
     // }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const studentsPerInstructorObj = cohorts.reduce((acc, cohort) => {
+        let instructorStudentsRatioArr = instructors.filter(instructor => {
+            return instructor.module === cohort.module
+        })
+        let instructorStudentsRatio = cohort.studentCount / instructorStudentsRatioArr.length;
+        acc['cohort' + cohort.cohort] = instructorStudentsRatio;
+        return acc
+    }, {})
+
+    const result = studentsPerInstructorObj;
     return result;
 
     // Annotation:
     // Write your annotation here as a comment
+
+    // I've been given two arrays of objects
+    // I want to get back an object
+    // To get the number of students for each cohort key, we'll 
+    // need to divide the studentCount by the the number of teachers
+    // in the module.
+    // Since we'll be making an entirely new object, I'm going to 
+    // use reduce.
   },
 
-  modulesPerTeacher() {
+  modulesPerInstructor() {
     // Return an object where each key is an instructor name and each value is
     // an array of the modules they can teach based on their skills. e.g.:
     // { 
@@ -48,14 +78,36 @@ const turingPrompts = {
     //   Pam: [2, 4]
     // }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = instructors.reduce((acc, instructor) => {
+        acc[instructor.name] = [];
+        let teachableModule = cohorts.filter(cohort => {
+            return cohort.curriculum.find(subject => {
+                return instructor.teaches.includes(subject)
+            })
+        })
+        teachableModule.forEach(classroom => {
+            acc[instructor.name].push(classroom.module)
+        })
+        return acc
+    }, {});
+
     return result;
 
     // Annotation:
     // Write your annotation here as a comment
+
+    // I've been given two arrays of objects
+    // I want to get back an object
+    // I'll use reduce to build my object
+    // I use filter to iterate through instructors and build 
+    // an array of qualified subjects
+    // I push those subjects into my array using find
+    // I then iterate through the subjects array using forEach
+    // to push the compatible module numbers to each instructor
+    // key.
   },
 
-  curriculumPerTeacher() {
+  curriculumPerInstructor() {
     // Return an object where each key is a curriculum topic and each value is
     // an array of instructors who teach that topic e.g.:
     // { 
@@ -65,11 +117,31 @@ const turingPrompts = {
     //   recursion: [ 'Pam', 'Leta' ]
     // }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = cohorts.reduce((acc, cohort) => {
+        cohort.curriculum.forEach(subject => {
+            let compatibleInstructorsArr = instructors.reduce((acc, instructor) => {
+                if (instructor.teaches.includes(subject)) {
+                    acc.push(instructor.name)
+                }
+                return acc
+            }, [])
+            acc[subject] = compatibleInstructorsArr;
+        })
+        console.log(acc)
+        return acc
+    }, {});
+
     return result;
 
     // Annotation:
     // Write your annotation here as a comment
+
+    // I am given two arrays of objects
+    // I want to return an object
+    // I'm going to use reduce to create my object
+    // I use forEach to iterate through the cohort curriculum
+    // I then reduce through the instructor objects to create
+    // an array of matching instructor names for each subject
   }
 };
 
@@ -100,11 +172,20 @@ const modPrompts = {
     //   { mod: 4, studentsPerInstructor: 8 }
     // ]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = mods.map(mod => {
+        let studentsPerInstructorSum = mod.students / mod.instructors
+        return ({ mod: mod.mod, studentsPerInstructor: studentsPerInstructorSum })
+    });
+
     return result;
 
     // Annotation:
     // Write your annotation here as a comment
+
+    // I've been given an array of objects
+    // I want to get back an array of objects
+    // I'll use map to get back an altered version of the original
+    // array I've been given.
   }
 };
 
@@ -135,7 +216,11 @@ const classPrompts = {
     //   { roomLetter: 'G', program: 'FE', capacity: 29 }
     // ]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+
+    const result = classrooms.filter(classroom => {
+        return classroom.program === 'FE';
+    });
+
     return result;
 
     // Annotation:
@@ -160,7 +245,15 @@ const classPrompts = {
   sortByCapacity() {
     // Return the array of classrooms sorted by their capacity (least capacity to greatest)
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = classrooms.reduce((acc, classroom) => {
+        if (classroom.program === 'FE') {
+            acc[feCapacity] = classroom.capacity
+        } else {
+            acc[beCapacity] = classroom.capacity
+        }
+        return acc;
+    }, {});
+
     return result;
 
     // Annotation:
@@ -191,11 +284,23 @@ const cakePrompts = {
     // every cake in the dataset e.g.
     // ['dutch process cocoa', 'toasted sugar', 'smoked sea salt', 'berries', ..etc]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = cakes.map(cake => {
+        cake.toppings.forEach(topping => {
+            if (!toppingsArray.includes(topping)) {
+                toppingsArray.push(topping)
+            }
+        })
+    });
+
     return result;
 
     // Annotation:
     // Write your annotation here as a comment
+
+    // I am given an array of cake objects
+    // I want to get back an array of toppings
+    // I'll use map to return a new array out of cakes
+    // I'll also use forEach to iterate through the toppings
   },
 
   groceryList() {
@@ -209,11 +314,27 @@ const cakePrompts = {
     //    ...etc
     // }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = cakes.reduce((acc, cake) => {
+        cake.toppings.forEach(topping => {
+            if (!Object.keys(acc).includes(topping)) {
+                acc[topping] = 1;
+            } else {
+                acc[topping]++;
+            }
+            
+        })
+        return acc;
+    }, {});
+
     return result;
 
     // Annotation:
     // Write your annotation here as a comment
+
+    // I am given an array of cake objects
+    // I want to get back an object of key value pairs
+    // I'll use reduce to create a new object
+    // I will also use forEach to iterate through the array of toppings
   },
 
   stockPerCake() {
@@ -225,22 +346,38 @@ const cakePrompts = {
     //    ..etc
     // ]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = cakes.map(cake => {
+        ({ flavor: cake.cakeFlavor, inStock: cake.inStock })
+    });
+
     return result;
 
     // Annotation:
     // Write your annotation here as a comment
+
+    // I'm given an array of cake objects
+    // I want to get back an array of objects
+    // I'll use map to return a new array of objects out of
+    // our cakes array
   },
 
   totalInventory() {
     // Return the total amout of cakes in stock e.g.
-    // 59
+    // 59 
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = cakes.reduce((acc, cake) => {
+        acc += cake.inStock
+        return acc
+    }, 0);
+
     return result;
 
     // Annotation:
     // Write your annotation here as a comment
+
+    // I've been given an array of cake objects
+    // I want to get back a number
+    // I'll use reduce to count up to the number of inStock cakes
   },
 
   onlyInStock() {
@@ -263,6 +400,20 @@ const cakePrompts = {
     // },
     // ..etc
     // ]
+ 
+
+    const result = cakes.filter(cake => {
+        return cake.inStock;
+    });
+
+    return result;
+
+    // Annotation:
+    // Write your annotation here as a comment
+
+    // I am given an array of cake objects
+    // I want to get back the altered array of cake objects
+    // I'll use filter to alter our original array of object cakes
   }
 };
 
@@ -421,7 +572,7 @@ const kittyPrompts = {
     //   color: 'orange'
     // },
     // ...etc]
-  };
+  }
 };
 
 
