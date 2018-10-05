@@ -664,5 +664,6 @@ module.exports = {
   classPrompts,
   modPrompts,
   kittyPrompts,
+  cakePrompts,
   astronomyPrompts
 };
